@@ -18,26 +18,26 @@ def queryCluster(ticker):
 
 def generate_visualizations(ticker):
     data = queryCluster(ticker)
+    dates = [date.date() for date in data.dates]
 
     # Visualize metrics
     moving_avg = data.moving_avg
-    graphHelper(ticker, moving_avg, "MOVING AVERAGE", data)
+    graphHelper(ticker, moving_avg, "MOVING AVERAGE", dates)
 
     daily_percentage = data.daily_percentage
-    graphHelper(ticker, daily_percentage, "DAILY PERCENTAGE", data)
+    graphHelper(ticker, daily_percentage, "DAILY PERCENTAGE", dates)
 
     atr = data.atr
-    graphHelper(ticker, atr, "ATR", data)
+    graphHelper(ticker, atr, "ATR", dates)
 
     vpt = data.vpt
-    graphHelper(ticker, vpt, "VPT", data)
+    graphHelper(ticker, vpt, "VPT", dates)
 
     rsi = data.rsi
-    graphHelper(ticker, rsi, "RSI", data)
+    graphHelper(ticker, rsi, "RSI", dates)
 
 
-def graphHelper(ticker, yaxis, title, data):
-    dates = [date.date() for date in data.dates]
+def graphHelper(ticker, yaxis, title, dates):
 
     output_file("output.html")
     graph = figure(x_axis_type="datetime", title="{} {}".format(ticker, title))
@@ -54,5 +54,6 @@ def graphHelper(ticker, yaxis, title, data):
     graph.legend.location = "top_left"
 
     show(graph)
+
 
 generate_visualizations("TMUS")
