@@ -3,7 +3,7 @@ from cassandra.cluster import Cluster
 from bokeh.plotting import figure, output_file, show
 
 # replace localhost with your Cassandra host IP
-cluster = Cluster(['104.196.157.153'])
+cluster = Cluster(['localhost'])
 session = cluster.connect()
 
 
