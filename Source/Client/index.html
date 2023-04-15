@@ -1,8 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="utf-8" />
-    <title>Stock Data Analysis</title>
+    <meta charset="UTF-8" />
+    <title>Stock Analysis</title>
   </head>
-  <body></body>
+  <body>
+    <form>
+      <label for="textbox">Enter Stock:</label>
+      <input type="text" id="textbox" name="textbox" /><br /><br />
+      <input type="button" value="Send" onclick="sendRequest()" />
+    </form>
+    <script src="client.js"></script>
+  </body>
 </html>
