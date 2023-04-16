@@ -1,11 +1,12 @@
 function sendRequest() {
   // Get the text from the text box
-  var ticker = document.getElementById("textbox").value;
+  var year = document.getElementById("year").value;
+  var ticker = document.getElementById("ticker").value;
 
   // Define the HTTP request options
   var options = {
     method: "POST",
-    body: ticker,
+    body: `${ticker},${year}`,
     headers: {
       "Content-Type": "text/plain",
     },
