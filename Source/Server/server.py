@@ -12,8 +12,12 @@ class MyRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.path == '/visualize':
             content_length = int(self.headers['Content-Length'])
-            data = self.rfile.read(content_length).decode('utf-8')
-            visualizations = generate_visualizations(data).encode('utf-8')
+            raw_data = self.rfile.read(content_length).decode('utf-8')
+            data = raw_data.split(",")
+            print(data[0])
+            print(data[1])
+            visualizations = generate_visualizations(
+                data[0], int(data[1])).encode('utf-8')
 
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
