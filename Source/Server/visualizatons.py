@@ -21,9 +21,10 @@ def queryCluster(ticker):
     return session.execute(get_stock).one()
 
 
-def createLineGraph(ticker, metric, title, color):
+def createLineGraph(ticker, metric, title, color, year):
     data = queryCluster(ticker)
-    dates = [date.date() for date in data.dates]
+    df = convertDatatoDF(data)
+    filtered_df = df[df['dates'].dt.year == year]
 
     graph = figure(x_axis_type="datetime",
                    title="{} for {}".format(title, ticker))
@@ -31,8 +32,8 @@ def createLineGraph(ticker, metric, title, color):
     graph.yaxis.axis_label = '{}'.format(title)
     graph.xaxis.major_label_orientation = 0.8
 
-    x_axis_coordinates = np.array(dates, dtype=np.datetime64)
-    y_axis_coordinates = np.array(getattr(data, metric))
+    x_axis_coordinates = np.array(filtered_df['dates'], dtype=np.datetime64)
+    y_axis_coordinates = np.array(filtered_df[metric])
 
     legend_label = title
 
@@ -44,19 +45,21 @@ def createLineGraph(ticker, metric, title, color):
     return graph
 
 
-def createSMAGraph(ticker):
-    candlestick = createCandleStick(ticker, "SMA for {}".format(ticker))
+def createSMAGraph(ticker, year):
+    candlestick = createCandleStick(
+        ticker, "SMA for {}".format(ticker), year)
 
     candlestick.xaxis.axis_label = 'DATE'
     candlestick.yaxis.axis_label = '{}'.format("PRICE")
 
     data = queryCluster(ticker)
-    dates = [date.date() for date in data.dates]
+    df = convertDatatoDF(data)
+    filtered_df = df[df['dates'].dt.year == year]
 
-    x_axis_coordinates = np.array(dates, dtype=np.datetime64)
-    sma_10 = np.array(getattr(data, "sma_10"))
-    sma_50 = np.array(getattr(data, "sma_50"))
-    sma_100 = np.array(getattr(data, "sma_100"))
+    x_axis_coordinates = np.array(filtered_df['dates'], dtype=np.datetime64)
+    sma_10 = np.array(filtered_df["sma_10"])
+    sma_50 = np.array(filtered_df["sma_50"])
+    sma_100 = np.array(filtered_df["sma_100"])
 
     candlestick.line(x_axis_coordinates, sma_10,
                      color="blue", legend_label="SMA 10")
@@ -77,15 +80,17 @@ def convertDatatoDF(data):
 
     datadict = {k: v for k, v in data_dict.items()}
     df = pd.DataFrame(datadict)
+    df['dates'] = pd.to_datetime(df['dates'])
     return df
 
 
-def createCandleStick(ticker, title):
+def createCandleStick(ticker, title, year):
     data = queryCluster(ticker)
     df = convertDatatoDF(data)
+    filtered_df = df[df['dates'].dt.year == year]
 
-    inc = df.close > df.open
-    dec = df.open > df.close
+    inc = filtered_df.close > filtered_df.open
+    dec = filtered_df.open > filtered_df.close
 
     w = 16*60*60*1000
 
@@ -93,32 +98,33 @@ def createCandleStick(ticker, title):
                    title=title, background_fill_color="#efefef")
     graph.xaxis.major_label_orientation = 0.8
 
-    graph.segment(df.dates, df.high, df.dates, df.low, color="black")
+    graph.segment(filtered_df.dates, filtered_df.high,
+                  filtered_df.dates, filtered_df.low, color="black")
 
-    graph.vbar(df.dates[dec], w, df.open[dec], df.close[dec], color="#eb3c40")
-    graph.vbar(df.dates[inc], w, df.open[inc], df.close[inc], fill_color="white",
+    graph.vbar(filtered_df.dates[dec], w, filtered_df.open[dec],
+               filtered_df.close[dec], color="#eb3c40")
+    graph.vbar(filtered_df.dates[inc], w, filtered_df.open[inc], filtered_df.close[inc], fill_color="white",
                line_color="#49a3a3", line_width=0.6)
 
     return graph
 
 
-def generate_visualizations(ticker):
+def generate_visualizations(ticker, year):
     # Visualize metrics
-    mv_avg_graph = createSMAGraph(ticker)
+    mv_avg_graph = createSMAGraph(ticker, year)
 
     dp_graph = createLineGraph(ticker, "daily_percentage",
-                               "DAILY PERCENTAGE", "red")
+                               "DAILY PERCENTAGE", "red", year)
 
-    atr_graph = createLineGraph(ticker, "atr", "ATR", "orange")
+    atr_graph = createLineGraph(ticker, "atr", "ATR", "orange", year)
 
-    vpt_graph = createLineGraph(ticker, "vpt", "VPT",  "green")
+    vpt_graph = createLineGraph(ticker, "vpt", "VPT",  "green", year)
 
-    rsi_graph = createLineGraph(ticker, "rsi", "RSI",  "purple")
+    rsi_graph = createLineGraph(ticker, "rsi", "RSI",  "purple", year)
 
     grid = gridplot([[mv_avg_graph, dp_graph], [
         vpt_graph, rsi_graph], [atr_graph]])
 
     html = file_html(grid, CDN, "{}_visualizations".format(ticker))
-    print(html)
 
     return (html)
