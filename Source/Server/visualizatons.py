@@ -8,7 +8,7 @@ from bokeh.embed import file_html
 
 
 # replace localhost with your Cassandra host IP
-cluster = Cluster(['34.75.190.139'])
+cluster = Cluster(['34.148.39.178'])
 session = cluster.connect()
 
 
