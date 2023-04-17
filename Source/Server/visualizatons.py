@@ -1,10 +1,10 @@
-from collections import namedtuple
 import numpy as np
 import pandas as pd
 from cassandra.cluster import Cluster
-from bokeh.plotting import ColumnDataSource, figure, gridplot, show
+from bokeh.plotting import figure
 from bokeh.resources import CDN
 from bokeh.embed import file_html
+from bokeh.layouts import grid
 
 
 # replace localhost with your Cassandra host IP
@@ -95,7 +95,7 @@ def createCandleStick(ticker, title, year):
     w = 16*60*60*1000
 
     graph = figure(x_axis_type="datetime",  width=1000, height=400,
-                   title=title, background_fill_color="#efefef")
+                   title=title, background_fill_color="#efefef", sizing_mode="stretch_width")
     graph.xaxis.major_label_orientation = 0.8
 
     graph.segment(filtered_df.dates, filtered_df.high,
@@ -110,7 +110,6 @@ def createCandleStick(ticker, title, year):
 
 
 def generate_visualizations(ticker, year):
-    # Visualize metrics
     mv_avg_graph = createSMAGraph(ticker, year)
 
     dp_graph = createLineGraph(ticker, "daily_percentage",
@@ -122,9 +121,12 @@ def generate_visualizations(ticker, year):
 
     rsi_graph = createLineGraph(ticker, "rsi", "RSI",  "purple", year)
 
-    grid = gridplot([[mv_avg_graph, dp_graph], [
-        vpt_graph, rsi_graph], [atr_graph]])
+    g = grid([
+        [mv_avg_graph],
+        [vpt_graph, rsi_graph],
+        [atr_graph, dp_graph]
+    ], sizing_mode="scale_both")
 
-    html = file_html(grid, CDN, "{}_visualizations".format(ticker))
+    html = file_html(g, CDN, "{}_visualizations".format(ticker))
 
-    return (html)
+    return html
