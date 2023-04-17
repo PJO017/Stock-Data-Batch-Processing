@@ -95,7 +95,7 @@ def createCandleStick(ticker, title, year):
     w = 16*60*60*1000
 
     graph = figure(x_axis_type="datetime",  width=1000, height=400,
-                   title=title, background_fill_color="#efefef")
+                   title=title, background_fill_color="#efefef", sizing_mode="stretch_width")
     graph.xaxis.major_label_orientation = 0.8
 
     graph.segment(filtered_df.dates, filtered_df.high,
@@ -109,8 +109,14 @@ def createCandleStick(ticker, title, year):
     return graph
 
 
+from bokeh.io import output_file, show
+from bokeh.layouts import row
+from bokeh.models import Div
+from bokeh.layouts import column, grid
+
+
+
 def generate_visualizations(ticker, year):
-    # Visualize metrics
     mv_avg_graph = createSMAGraph(ticker, year)
 
     dp_graph = createLineGraph(ticker, "daily_percentage",
@@ -122,9 +128,14 @@ def generate_visualizations(ticker, year):
 
     rsi_graph = createLineGraph(ticker, "rsi", "RSI",  "purple", year)
 
-    grid = gridplot([[mv_avg_graph, dp_graph], [
-        vpt_graph, rsi_graph], [atr_graph]])
+    grid1 = row(mv_avg_graph)
+    grid = gridplot([[vpt_graph, rsi_graph], [atr_graph, dp_graph]])
 
-    html = file_html(grid, CDN, "{}_visualizations".format(ticker))
+    grid1.width = 1900
+    grid1.height = 300
+    dp_graph.width = vpt_graph.width = rsi_graph.width = atr_graph.width = 900
+    dp_graph.height = vpt_graph.height = rsi_graph.height = atr_graph.height = 300
 
-    return (html)
+    html = file_html([grid1, grid], CDN, "{}_visualizations".format(ticker))
+
+    return html
