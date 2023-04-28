@@ -1,8 +1,14 @@
 # Stock Market Data Batch Processing
 
 ## Description
-
-Process and analyze historical stock market data to calculate market indicators such as moving averages, relative strength index etc. to identify potential investment opportunities.
+ This is a cloud computing system for performing batch processing and analysis of historical stock data. The system consists of three main components: the Apache Spark data analysis application, the Cassandra cluster, and the HTTP server used to generate visualizations from data stored in the Cassandra cluster.
+ 
+ Technical Indicators Calculated:  
+ - Daily Percentage 
+ - Average True Range (ATR)
+ - Relative Strength Index (RSI)
+ - Volume Price Trend (VPT)
+ - Simple Moving Average (SMA)
 
 ### Dependencies
 
