@@ -24,3 +24,5 @@ docker run --name node3 --network cassandra-network -e CASSANDRA_SEEDS=node1,nod
 
 echo "Node 3 created."
 echo "Cluster initialization complete"
+
+docker exec -it node1 nodetool status
